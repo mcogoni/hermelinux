@@ -819,11 +819,11 @@ void vfo_id_step(int id, int steps) {
       long long min_freq = frequency - half;
       long long max_freq = frequency + half;
 
-      if (rx_low <= min_freq) {
-        return;
-      } else if (rx_high >= max_freq) {
-        return;
-      }
+      // if (rx_low <= min_freq) {
+      //   return;
+      // } else if (rx_high >= max_freq) {
+      //   return;
+      // }
 
       delta = vfo[id].ctun_frequency;
       vfo[id].ctun_frequency = ROUND(vfo[id].ctun_frequency, steps, vfo[id].step);
