@@ -341,6 +341,7 @@ void send_rx_data(const REMOTE_CLIENT *client, int rx) {
   rx_data.panadapter_low = htons(receiver[rx]->panadapter_low);
   rx_data.panadapter_high = htons(receiver[rx]->panadapter_high);
   rx_data.panadapter_step = htons(receiver[rx]->panadapter_step);
+  rx_data.panadapter_automatic = receiver[rx]->panadapter_automatic;
   rx_data.waterfall_low = htons(receiver[rx]->waterfall_low);
   rx_data.waterfall_high = htons(receiver[rx]->waterfall_high);
   rx_data.waterfall_automatic = receiver[rx]->waterfall_automatic;
@@ -2194,6 +2195,7 @@ static void *client_thread(void* arg) {
       receiver[rx]->panadapter_high = (int)s;
       s = ntohs(rx_data.panadapter_step);
       receiver[rx]->panadapter_step = s;
+      receiver[rx]->panadapter_automatic = rx_data.panadapter_automatic;
       s = ntohs(rx_data.waterfall_low);
       receiver[rx]->waterfall_low = (int)s;
       s = ntohs(rx_data.waterfall_high);

@@ -145,8 +145,20 @@ static void waterfall_low_value_changed_cb(GtkWidget *widget, gpointer data) {
 static void waterfall_automatic_cb(GtkWidget *widget, gpointer data) {
   int val = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
   active_receiver->waterfall_automatic = val;
+  if (val==1) {
+    active_receiver->n_avg_counter = -1;
+    display_wf_auto = 1;
+  } else {
+    display_wf_auto = -1;
+  }
   gtk_widget_set_sensitive(waterfall_high_r, !val);
   gtk_widget_set_sensitive(waterfall_low_r, !val);
+}
+
+// KYB
+static void panadapter_automatic_cb(GtkWidget *widget, gpointer data) {
+  int val = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+  active_receiver->panadapter_automatic = val;
 }
 
 static void display_waterfall_cb(GtkWidget *widget, gpointer data) {
@@ -263,6 +275,19 @@ void display_menu(GtkWidget *parent) {
   gtk_widget_show(waterfall_automatic_b);
   gtk_grid_attach(GTK_GRID(grid), waterfall_automatic_b, col, row, 1, 1);
   g_signal_connect(waterfall_automatic_b, "toggled", G_CALLBACK(waterfall_automatic_cb), NULL);
+// KYB
+  col++;
+  label = gtk_label_new("Panadapter Follows Auto WF:");
+  gtk_widget_set_name (label, "boldlabel");
+  gtk_widget_set_halign(label, GTK_ALIGN_END);
+  gtk_grid_attach(GTK_GRID(grid), label, col, row, 1, 1);
+  col++;
+  GtkWidget *panadapter_automatic_b = gtk_check_button_new();
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (panadapter_automatic_b), active_receiver->panadapter_automatic);
+  gtk_widget_show(panadapter_automatic_b);
+  gtk_grid_attach(GTK_GRID(grid), panadapter_automatic_b, col, row, 1, 1);
+  g_signal_connect(panadapter_automatic_b, "toggled", G_CALLBACK(panadapter_automatic_cb), NULL);
+//
   col = 2;
   row = 1;
   label = gtk_label_new("Detector:");

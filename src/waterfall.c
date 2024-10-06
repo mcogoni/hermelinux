@@ -30,6 +30,9 @@
   #include "client_server.h"
 #endif
 
+#define COLOUR_ATTN          1.00, 1.00, 0.00, 1.00
+#define COLOUR_SHADE         0.70, 0.70, 0.70, 1.00
+
 static int colorLowR = 0; // black
 static int colorLowG = 0;
 static int colorLowB = 0;
@@ -42,6 +45,48 @@ static double hz_per_pixel;
 
 static int my_width;
 static int my_heigt;
+
+typedef struct perc{
+  float min;
+  float max;
+} t_percentile;
+
+// compare function for the quicksort function
+int cmpfunc (const void * a, const void * b) {
+   return ( *(float*)a - *(float*)b );
+}
+
+void percentile(const float * samples_, int min_perc, int max_perc, int width, t_percentile* results) {
+  const float db_offset = 200.0;
+  float cdf = 0.0, total_sum = 0.0;
+  int i_min_perc = -1, i_max_perc = -1;
+  float val_min_perc, val_max_perc;
+  float * samples_copy = (float *) malloc(width*sizeof(float));
+
+  memcpy(samples_copy, samples_, width*sizeof(float));
+  qsort(samples_copy, width, sizeof(float), cmpfunc);
+
+  for (int i = 0; i < width; i++) {
+    samples_copy[i] += db_offset;
+    total_sum += (samples_copy[i]);
+  }
+  val_min_perc = total_sum * min_perc / 100.0;
+  val_max_perc = total_sum * max_perc / 100.0;
+  for (int i = 0; i < width; i++) {
+    cdf += (samples_copy[i]);
+    if (cdf >= val_min_perc && i_min_perc == -1) {
+      i_min_perc = i;
+    } else if (cdf >= val_max_perc) {
+      i_max_perc = i;
+      break;
+    }
+  }
+  results->min = samples_copy[i_min_perc] - db_offset;
+  results->max = samples_copy[i_max_perc] - db_offset;
+
+  free(samples_copy);
+  return;
+}
 
 /* Create a new surface of the appropriate size to store our scribbles */
 static gboolean
@@ -201,11 +246,15 @@ void waterfall_update(RECEIVER *rx) {
     if (!freq_changed) {
       memmove(&pixels[rowstride], pixels, (height - 1)*rowstride);
       float soffset;
-      float average;
       unsigned char *p;
       p = pixels;
-      samples = rx->pixel_samples;
-      float wf_low, wf_high, rangei;
+      samples = rx->pixel_samples_wf;
+      int avg_samples = rx->fps > 50 ? WF_AVG_SIZE * rx->fps : WF_AVG_SIZE * 50;
+      float wf_low=-145, wf_high=-70, rangei;
+      float wf_min = 1000.0, wf_max = -1000.0; // KYB
+      t_percentile perc_idx;
+      int min_perc = 10, max_perc = 99;
+
       int id = rx->id;
       int b = vfo[id].band;
       const BAND *band = band_get_band(b);
@@ -223,19 +272,45 @@ void waterfall_update(RECEIVER *rx) {
         soffset += (float)(12 * rx->alex_attenuation - 18 * rx->preamp - 18 * rx->dither);
       }
 
-      average = 0.0F;
-
-      for (i = 0; i < width; i++) {
-        average += (samples[i + pan] + soffset);
-      }
-
       if (rx->waterfall_automatic) {
-        wf_low = average / (float)width;
-        wf_high = wf_low + 50.0F;
+        percentile(samples, min_perc, max_perc, width, &perc_idx); // compute the low and high percentiles of the samples
+        wf_min = (float) perc_idx.min + soffset; // take into account attenuation, gain, etc...
+        wf_max = (float) perc_idx.max + soffset;
+        rx->wf_min_avg += wf_min;
+        rx->wf_max_avg += wf_max;
+        rx->n_avg_counter++;
+
+      
+        if (rx->n_avg_counter % avg_samples == 0) {
+          wf_min = rx->wf_min_avg;
+          wf_max = rx->wf_max_avg;
+          // let's do the autoscale immediately AND after some time
+          if (rx->n_avg_counter == avg_samples || rx->n_avg_counter == 0) {
+            wf_min /= ((float) rx->n_avg_counter+1.0); // avg computation
+            wf_max /= ((float) rx->n_avg_counter+1.0);
+            wf_low = wf_min + ((float) rx->zoom-1)/2.0; // empirical correction for zoom factor noise
+            wf_high = (wf_max - wf_low) < 40 ? wf_low + 40.0 : wf_max;
+            wf_low += (rx->waterfall_low - wf_low) / 3; // corrections to limits are added slowly
+            wf_high += (rx->waterfall_high - wf_high) / 3;
+            rx->waterfall_low = wf_low;
+            rx->waterfall_high = wf_high + 10.0; // some headroom for the peaks
+            
+            if (rx->panadapter_automatic) { // do we need to autoscale the panadapter too?
+              rx->panadapter_low = wf_low;
+              rx->panadapter_high = wf_high + 20.0; // some headroom in the pana
+            }
+            rx->wf_min_avg = 0.0; // reset the running avg and the iteration counter
+            rx->wf_max_avg = 0.0;
+            rx->n_avg_counter = 0;
+          }
+        }
       } else {
-        wf_low  = (float) rx->waterfall_low;
-        wf_high = (float) rx->waterfall_high;
+        rx->wf_min_avg = 0.0; // reset the running avgs if autoscale disabled
+        rx->wf_max_avg = 0.0;        
       }
+      wf_low  = (float) rx->waterfall_low;
+      wf_high = (float) rx->waterfall_high;
+      // rx->n_avg_counter++;
 
       rangei = 1.0F / (wf_high - wf_low);
 

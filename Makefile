@@ -12,9 +12,9 @@
 #
 #######################################################################################
 
-GPIO=ON
+GPIO=OFF
 MIDI=ON
-SATURN=ON
+SATURN=OFF
 USBOZY=OFF
 SOAPYSDR=OFF
 STEMLAB=OFF

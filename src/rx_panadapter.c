@@ -583,6 +583,24 @@ void display_panadapter_messages(cairo_t *cr, int width, unsigned int fps) {
       }
     }
 
+    if (display_wf_auto != 0) {
+      static unsigned int wf_auto_count = 0;
+      
+      cairo_move_to(cr, 100.0, 70.0);
+
+      if (display_wf_auto == 1) {
+        cairo_show_text(cr, "WATERFALL AUTOSCALE ON");
+      } else {
+        cairo_show_text(cr, "WATERFALL AUTOSCALE OFF");
+      }
+      wf_auto_count++;
+      if (wf_auto_count > 5 * fps) {
+        display_wf_auto = 0;
+        wf_auto_count = 0;
+      }
+
+    }
+
     if (adc0_overload || adc1_overload) {
       static unsigned int adc_error_count = 0;
       cairo_move_to(cr, 100.0, 70.0);

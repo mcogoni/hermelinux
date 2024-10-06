@@ -200,6 +200,7 @@ typedef struct __attribute__((__packed__)) _receiver_data {
   uint16_t panadapter_low;
   uint16_t panadapter_high;
   uint16_t panadapter_step;
+  uint8_t panadapter_automatic;
   uint16_t waterfall_low;
   uint16_t waterfall_high;
   uint8_t waterfall_automatic;

@@ -134,6 +134,7 @@ extern const int pa_power_list[];
 extern int display_zoompan;
 extern int display_sliders;
 extern int display_toolbar;
+extern int display_wf_auto;
 
 extern int mic_linein;
 extern double linein_gain;

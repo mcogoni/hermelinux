@@ -485,6 +485,7 @@ static int rx_update_display(gpointer data) {
     if (rx->pixels > 0) {
       g_mutex_lock(&rx->display_mutex);
       GetPixels(rx->id, 0, rx->pixel_samples, &rc);
+      GetPixels(rx->id, 1, rx->pixel_samples_wf, &rc); // KYB
 
       if (rc) {
         if (rx->display_panadapter) {
@@ -823,7 +824,7 @@ void rx_set_offset(const RECEIVER *rx, long long offset) {
 static void rx_init_analyzer(const RECEIVER *rx) {
   int flp[] = {0};
   const double keep_time = 0.1;
-  const int n_pixout = 1;
+  const int n_pixout = 2;
   const int spur_elimination_ffts = 1;
   const int data_type = 1;
   const double kaiser_pi = 14.0;
@@ -1007,6 +1008,11 @@ RECEIVER *rx_create_receiver(int id, int pixels, int width, int height) {
     rx->resampler = NULL;
     rx->resample_buffer = NULL;
   }
+  
+  // KYB autoadaptive waterfall
+  rx->n_avg_counter = -1;
+  rx->wf_min_avg = 0.0;
+  rx->wf_max_avg = 0.0;
 
   //
   // For larger sample rates we could use a larger buffer_size, since then
@@ -1028,6 +1034,7 @@ RECEIVER *rx_create_receiver(int id, int pixels, int width, int height) {
   rx->panadapter_high = -40;
   rx->panadapter_low = -140;
   rx->panadapter_step = 20;
+  rx->panadapter_automatic = 1;
   rx->waterfall_high = -40;
   rx->waterfall_low = -140;
   rx->waterfall_automatic = 1;
@@ -1141,6 +1148,7 @@ RECEIVER *rx_create_receiver(int id, int pixels, int width, int height) {
   rx->iq_input_buffer = g_new(double, 2 * rx->buffer_size);
   rx->pixels = pixels * rx->zoom;
   rx->pixel_samples = g_new(float, rx->pixels);
+  rx->pixel_samples_wf = g_new(float, rx->pixels);  
   t_print("%s (after restore): id=%d local_audio=%d\n", __FUNCTION__, rx->id, rx->local_audio);
   int scale = rx->sample_rate / 48000;
   rx->output_samples = rx->buffer_size / scale;
@@ -1255,6 +1263,8 @@ RECEIVER *rx_create_receiver(int id, int pixels, int width, int height) {
 
   SetDisplayDetectorMode(rx->id, 0, rx->display_detector_mode);
   SetDisplayAverageMode(rx->id, 0,  rx->display_average_mode);
+  SetDisplayDetectorMode(rx->id, 1, rx->display_detector_mode); // KYB
+  SetDisplayAverageMode(rx->id, 1, AVERAGE_MODE_NONE); // KYB  
   rx_calculate_display_average(rx);
   rx_create_visual(rx);
   t_print("%s: rx=%p id=%d local_audio=%d\n", __FUNCTION__, rx, rx->id, rx->local_audio);
@@ -1298,7 +1308,9 @@ void rx_change_sample_rate(RECEIVER *rx, int sample_rate) {
   if (rx->id == PS_RX_FEEDBACK && protocol == ORIGINAL_PROTOCOL) {
     rx->pixels = (sample_rate / 24000) * rx->width;
     g_free(rx->pixel_samples);
+    g_free(rx->pixel_samples_wf);    
     rx->pixel_samples = g_new(float, rx->pixels);
+    rx->pixel_samples_wf = g_new(float, rx->pixels);
     rx_init_analyzer(rx);
     t_print("%s: PS RX FEEDBACK: id=%d rate=%d buffer_size=%d output_samples=%d\n",
             __FUNCTION__, rx->id, rx->sample_rate, rx->buffer_size, rx->output_samples);
@@ -1316,6 +1328,7 @@ void rx_change_sample_rate(RECEIVER *rx, int sample_rate) {
   //
   if (rx->audio_output_buffer != NULL) {
     g_free(rx->audio_output_buffer);
+    g_free(rx->pixel_samples_wf);
   }
 
   rx->audio_output_buffer = g_new(double, 2 * rx->output_samples);
@@ -1685,6 +1698,7 @@ void rx_update_zoom(RECEIVER *rx) {
     }
 
     rx->pixel_samples = g_new(float, rx->pixels);
+    rx->pixel_samples_wf = g_new(float, rx->pixels);
     rx_init_analyzer(rx);
 #ifdef CLIENT_SERVER
   }

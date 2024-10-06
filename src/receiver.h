@@ -30,6 +30,8 @@
   #include <pulse/simple.h>
 #endif
 
+#define WF_AVG_SIZE 2
+
 enum _audio_channel_enum {
   STEREO = 0,
   LEFT,
@@ -68,6 +70,7 @@ typedef struct _receiver {
   double *audio_output_buffer;
   int audio_index;
   float *pixel_samples;
+  float *pixel_samples_wf;
   int display_panadapter;
   int display_waterfall;
   guint update_timer_id;
@@ -171,6 +174,7 @@ typedef struct _receiver {
   int panadapter_low;
   int panadapter_high;
   int panadapter_step;
+  int panadapter_automatic;
 
   int waterfall_low;
   int waterfall_high;
@@ -238,6 +242,11 @@ typedef struct _receiver {
   int x;
   int y;
 
+  // KYB autoadaptive waterfall stuff
+  int n_avg;
+  int n_avg_counter;
+  float wf_min_avg, wf_max_avg;
+  
   // two variables that implement the new
   // "mute first RX IQ samples after TX/RX transition"
   // feature that is relevant for HermesLite-II and STEMlab

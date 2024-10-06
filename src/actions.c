@@ -229,6 +229,7 @@ ACTION_TABLE ActionTable[] = {
   {VFOB,                "VFO B",                "VFOB",         MIDI_WHEEL | CONTROLLER_ENCODER},
   {VOX,                 "VOX\nOn/Off",          "VOX",          MIDI_KEY   | CONTROLLER_SWITCH},
   {VOXLEVEL,            "VOX\nLevel",           "VOXLEV",       MIDI_WHEEL | CONTROLLER_ENCODER},
+  {WATERFALL_AUTO,      "Wfall\nAuto",          "WFAUTO",       MIDI_KEY   | CONTROLLER_SWITCH},
   {WATERFALL_HIGH,      "Wfall\nHigh",          "WFALLH",       MIDI_WHEEL | CONTROLLER_ENCODER},
   {WATERFALL_LOW,       "Wfall\nLow",           "WFALLL",       MIDI_WHEEL | CONTROLLER_ENCODER},
   {XIT,                 "XIT",                  "XIT",          MIDI_WHEEL | CONTROLLER_ENCODER},
@@ -1335,7 +1336,7 @@ int process_action(void *data) {
     break;
 
   case PANADAPTER_HIGH:
-    value = KnobOrWheel(a, active_receiver->panadapter_high, -60.0, 20.0, 1.0);
+    value = KnobOrWheel(a, active_receiver->panadapter_high, -100.0, 0.0, 1.0);
     active_receiver->panadapter_high = (int)value;
     break;
 
@@ -1690,6 +1691,21 @@ int process_action(void *data) {
     vox_threshold = KnobOrWheel(a, vox_threshold, 0.0, 1.0, 0.01);
     break;
 
+  case WATERFALL_AUTO:
+    if (a->mode == PRESSED) {
+      value = active_receiver->waterfall_automatic;
+      if (value) {
+        active_receiver->waterfall_automatic = 0;
+        display_wf_auto = -1;
+    } else {
+        active_receiver->waterfall_automatic = 1;
+        active_receiver->n_avg_counter = -1;
+        display_wf_auto = 1;
+      }
+    }
+
+    break;
+    
   case WATERFALL_HIGH:
     value = KnobOrWheel(a, active_receiver->waterfall_high, -100.0, 0.0, 1.0);
     active_receiver->waterfall_high = (int)value;
