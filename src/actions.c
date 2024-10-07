@@ -1721,7 +1721,7 @@ int process_action(void *data) {
     break;
 
   case WATERFALL_LOW:
-    value = KnobOrWheel(a, active_receiver->waterfall_low, -150.0, -50.0, 1.0);
+    value = KnobOrWheel(a, active_receiver->waterfall_low, -170.0, -50.0, 1.0);
     active_receiver->waterfall_low = (int)value;
     break;
 
