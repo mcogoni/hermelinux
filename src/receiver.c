@@ -1328,7 +1328,6 @@ void rx_change_sample_rate(RECEIVER *rx, int sample_rate) {
   //
   if (rx->audio_output_buffer != NULL) {
     g_free(rx->audio_output_buffer);
-    g_free(rx->pixel_samples_wf);
   }
 
   rx->audio_output_buffer = g_new(double, 2 * rx->output_samples);

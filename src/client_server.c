@@ -341,10 +341,10 @@ void send_rx_data(const REMOTE_CLIENT *client, int rx) {
   rx_data.panadapter_low = htons(receiver[rx]->panadapter_low);
   rx_data.panadapter_high = htons(receiver[rx]->panadapter_high);
   rx_data.panadapter_step = htons(receiver[rx]->panadapter_step);
-  rx_data.panadapter_automatic = receiver[rx]->panadapter_automatic;
+  rx_data.panadapter_automatic = htons(receiver[rx]->panadapter_automatic);
   rx_data.waterfall_low = htons(receiver[rx]->waterfall_low);
   rx_data.waterfall_high = htons(receiver[rx]->waterfall_high);
-  rx_data.waterfall_automatic = receiver[rx]->waterfall_automatic;
+  rx_data.waterfall_automatic = htons(receiver[rx]->waterfall_automatic);
   rx_data.pixels = htons(receiver[rx]->pixels);
   rx_data.zoom = htons(receiver[rx]->zoom);
   rx_data.pan = htons(receiver[rx]->pan);
