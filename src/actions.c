@@ -1622,7 +1622,11 @@ int process_action(void *data) {
   case VFO:
     if (a->mode == RELATIVE && !locked) {
       static int acc = 0;
-      acc += (int) pow(a->val,2);
+      float delta = pow(abs(a->val), geometric_step_power);
+      if (a->val < 0) {
+        delta *= -1;
+      }
+      acc += (int) delta;
       int new = acc / vfo_encoder_divisor;
 
       if (new != 0) {
@@ -1655,7 +1659,7 @@ int process_action(void *data) {
     if (a->mode == RELATIVE && !locked) {
       static int acc = 0;
 
-      float delta = pow(abs(a->val), 1.5);
+      float delta = pow(abs(a->val), geometric_step_power);
       if (a->val < 0) {
         delta *= -1;
       }
@@ -1673,7 +1677,7 @@ int process_action(void *data) {
   case VFOB:
     if (a->mode == RELATIVE && !locked) {
       static int acc = 0;
-      float delta = pow(abs(a->val), 1.5);
+      float delta = pow(abs(a->val), geometric_step_power);
       if (a->val < 0) {
         delta *= -1;
       }

@@ -21,6 +21,8 @@
 
 #include "mode.h"
 
+double geometric_step_power = 1.5;
+
 enum _vfo_enum {
   VFO_A = 0,
   VFO_B,
