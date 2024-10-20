@@ -586,18 +586,20 @@ void display_panadapter_messages(cairo_t *cr, int width, unsigned int fps) {
     if (display_wf_auto != 0) {
       static unsigned int wf_auto_count = 0;
       
-      cairo_move_to(cr, 100.0, 70.0);
+      cairo_move_to(cr, 3.0, 40.0);
 
       if (display_wf_auto == 1) {
-        cairo_show_text(cr, "WATERFALL AUTOSCALE ON");
+        cairo_set_source_rgba(cr, COLOUR_ALARM);
+        cairo_show_text(cr, "AUTO");
       } else {
-        cairo_show_text(cr, "WATERFALL AUTOSCALE OFF");
+        cairo_set_source_rgba(cr, COLOUR_SHADE);
+        // cairo_show_text(cr, "AUTO OFF");
       }
-      wf_auto_count++;
-      if (wf_auto_count > 5 * fps) {
-        display_wf_auto = 0;
-        wf_auto_count = 0;
-      }
+      // wf_auto_count++;
+      // if (wf_auto_count > 5 * fps) {
+      //   display_wf_auto = 0;
+      //   wf_auto_count = 0;
+      // }
 
     }
 
