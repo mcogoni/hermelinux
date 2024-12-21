@@ -996,9 +996,11 @@ TRANSMITTER *tx_create_transmitter(int id, int width, int height) {
   SetTXACFIRRun(tx->id, SET(protocol == NEW_PROTOCOL)); // turned on if new protocol
   tx_set_equalizer(tx);
   tx_set_ctcss(tx, tx->ctcss_enabled, tx->ctcss);
-  SetTXAAMSQRun(tx->id, 0);
+  SetTXAAMSQRun(tx->id, 0); // KYB noise gate
+  // SetTXAAMSQMutedGain (tx->id, -30);
+  // SetTXAAMSQThreshold (tx->id, -20);
   SetTXAALCAttack(tx->id, 1);
-  SetTXAALCDecay(tx->id, 10);
+  SetTXAALCDecay(tx->id, 800); // KYB trying to fix audio compressor behavior
   SetTXAALCSt(tx->id, 1); // turn it on (always on)
   SetTXAPreGenMode(tx->id, 0);
   SetTXAPreGenToneMag(tx->id, 0.0);
@@ -1021,9 +1023,10 @@ TRANSMITTER *tx_create_transmitter(int id, int width, int height) {
   SetTXACompressorRun(tx->id, tx->compressor);
   SetTXAosctrlRun(tx->id, tx->compressor);
   SetTXALevelerAttack(tx->id, 1);
-  SetTXALevelerDecay(tx->id, 500);
+  SetTXALevelerDecay(tx->id, 1000);
   SetTXALevelerTop(tx->id, 6.0);
-  SetTXALevelerSt(tx->id, tx->compressor);
+  // SetTXALevelerSt(tx->id, tx->compressor);
+  SetTXALevelerSt(tx->id, 0);
   tx_set_mode(tx, vfo_get_tx_mode());
   XCreateAnalyzer(tx->id, &rc, 262144, 1, 1, "");
 

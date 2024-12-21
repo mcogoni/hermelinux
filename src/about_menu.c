@@ -74,7 +74,8 @@ void about_menu(GtkWidget *parent) {
   g_signal_connect (close_b, "button-press-event", G_CALLBACK(close_cb), NULL);
   gtk_grid_attach(GTK_GRID(grid), close_b, 0, row, 1, 1);
   row++;
-  snprintf(text, 1024, "piHPSDR by John Melton G0ORX/N6LYT\n\n"
+  snprintf(text, 1024, "Hermelinux by Marco Cogoni IS0KYB\n\n"
+           "    based on piHPSDR\n"
            "    With help from:\n"
            "    Steve Wilson, KA6S: RIGCTL (CAT over TCP)\n"
            "    Laurence Barker, G8NJJ: USB OZY Support\n"

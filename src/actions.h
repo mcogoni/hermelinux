@@ -245,3 +245,4 @@ extern int  String2Action(const char *str);
 extern void GetMultifunctionString(char* str, size_t len);
 extern int  GetMultifunctionStatus(void);
 #endif
+

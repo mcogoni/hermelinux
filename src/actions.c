@@ -385,6 +385,8 @@ int process_action(void *data) {
   double value;
   int i;
   gboolean free_action = TRUE;
+  const double geometric_step_power = 1.5;
+
 
   //t_print("%s: action=%d mode=%d value=%d\n",__FUNCTION__,a->action,a->mode,a->val);
   switch (a->action) {

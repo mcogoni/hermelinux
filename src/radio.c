@@ -1261,14 +1261,14 @@ void radio_start_radio() {
   case NEW_PROTOCOL:
     if (have_saturn_xdma) {
       // radio has no ip and MAC
-      snprintf(text, 1024, "piHPSDR: %s (%s v%d) on %s",
+      snprintf(text, 1024, "Hermelinux: %s (%s v%d) on %s",
                radio->name,
                p,
                radio->software_version,
                iface);
     } else if (device == DEVICE_OZY) {
       // radio has no ip, and name is "Ozy USB"
-      snprintf(text, 1024, "piHPSDR: %s (%s %s)",
+      snprintf(text, 1024, "Hermelinux: %s (%s %s)",
                radio->name,
                p,
                version);
@@ -1277,7 +1277,7 @@ void radio_start_radio() {
       // it does not fit  in windows 640 pixels wide.
       // if needed, the MAC address of the radio can be
       // found in the ABOUT menu.
-      snprintf(text, 1024, "piHPSDR: %s (%s %s) %s on %s",
+      snprintf(text, 1024, "Hermelinux: %s (%s %s) %s on %s",
                radio->name,
                p,
                version,
