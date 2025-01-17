@@ -39,6 +39,7 @@
 
 static int myvfo;  //  VFO the menu is referring to
 static GtkWidget *dialog = NULL;
+static GtkWidget *freq_entry = NULL;
 static GtkWidget *label;
 
 //
@@ -162,6 +163,33 @@ static void lock_cb(GtkWidget *widget, gpointer data) {
   g_idle_add(ext_vfo_update, NULL);
 }
 
+// KYB
+static void freq_entry_activated(GtkEntry *entry, gpointer data)
+{
+    long long fl;
+    int val = GPOINTER_TO_INT(data);
+    const gchar *entered = gtk_entry_get_text(entry);
+
+    fl = atof(entered) * 1000; // freq is entered in kHz
+    if (fl >= 10000ll) {
+#ifdef CLIENT_SERVER
+
+      if (radio_is_remote) {
+        send_vfo_frequency(client_socket, myvfo, fl);
+      } else {
+#endif
+        vfo_set_frequency(myvfo, fl);
+#ifdef CLIENT_SERVER
+      }
+
+#endif
+    }
+
+  g_idle_add(ext_vfo_update, NULL);
+  close_cb();
+}
+// KYB
+
 void vfo_menu(GtkWidget *parent, int id) {
   int i, row;
   myvfo = id; // store this for cleanup()
@@ -190,6 +218,17 @@ void vfo_menu(GtkWidget *parent, int id) {
   gtk_widget_set_size_request(label, 150, 0);
   gtk_misc_set_alignment (GTK_MISC (label), 1, .5);
   gtk_grid_attach(GTK_GRID(grid), label, 0, 1, 3, 1);
+
+  // KYB
+  freq_entry = gtk_entry_new();
+  gtk_editable_set_editable(GTK_EDITABLE(freq_entry), TRUE);
+  gtk_entry_set_visibility(GTK_ENTRY(freq_entry), TRUE);
+  gtk_widget_set_can_focus(freq_entry, TRUE);
+  gtk_grid_attach (GTK_GRID (grid), GTK_WIDGET(freq_entry), 0, 1, 2, 1);
+  gtk_widget_show(freq_entry);
+  g_signal_connect(G_OBJECT(freq_entry), "activate", G_CALLBACK(freq_entry_activated), NULL);
+    // KYB
+
 
   for (i = 0; i < 16; i++) {
     btn[i] = gtk_button_new_with_label(btn_labels[i]);
@@ -275,6 +314,9 @@ void vfo_menu(GtkWidget *parent, int id) {
   gtk_container_add(GTK_CONTAINER(content), grid);
   sub_menu = dialog;
   gtk_widget_show_all(dialog);
+
+  // KYB
+  gtk_widget_grab_focus(GTK_WIDGET(freq_entry));
 }
 
 //

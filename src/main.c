@@ -193,46 +193,57 @@ gboolean keypress_cb(GtkWidget *widget, GdkEventKey *event, gpointer data) {
   // This is a contribution of Ron, it uses a keypad for
   // entering a frequency
   //
+  case GDK_KEY_0:
   case GDK_KEY_KP_0:
     vfo_num_pad(0, active_receiver->id);
     break;
 
+  case GDK_KEY_1:
   case GDK_KEY_KP_1:
     vfo_num_pad(1, active_receiver->id);
     break;
 
+  case GDK_KEY_2:
   case GDK_KEY_KP_2:
     vfo_num_pad(2, active_receiver->id);
     break;
 
+  case GDK_KEY_3:
   case GDK_KEY_KP_3:
     vfo_num_pad(3, active_receiver->id);
     break;
 
+  case GDK_KEY_4:
   case GDK_KEY_KP_4:
     vfo_num_pad(4, active_receiver->id);
     break;
 
+  case GDK_KEY_5:
   case GDK_KEY_KP_5:
     vfo_num_pad(5, active_receiver->id);
     break;
 
+  case GDK_KEY_6:
   case GDK_KEY_KP_6:
     vfo_num_pad(6, active_receiver->id);
     break;
 
+  case GDK_KEY_7:
   case GDK_KEY_KP_7:
     vfo_num_pad(7, active_receiver->id);
     break;
 
+  case GDK_KEY_8:
   case GDK_KEY_KP_8:
     vfo_num_pad(8, active_receiver->id);
     break;
 
+  case GDK_KEY_9:
   case GDK_KEY_KP_9:
     vfo_num_pad(9, active_receiver->id);
     break;
 
+  case GDK_KEY_Escape:
   case GDK_KEY_KP_Divide:
     vfo_num_pad(-1, active_receiver->id);
     break;
@@ -245,14 +256,17 @@ gboolean keypress_cb(GtkWidget *widget, GdkEventKey *event, gpointer data) {
     vfo_num_pad(-3, active_receiver->id);
     break;
 
+  case GDK_KEY_Return:
   case GDK_KEY_KP_Enter:
     vfo_num_pad(-4, active_receiver->id);
     break;
 
+  case GDK_KEY_period:
   case GDK_KEY_KP_Decimal:
     vfo_num_pad(-5, active_receiver->id);
     break;
 
+  case GDK_KEY_BackSpace:
   case GDK_KEY_KP_Subtract:
     vfo_num_pad(-6, active_receiver->id);
     break;
